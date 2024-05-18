@@ -10,6 +10,7 @@ typedef struct {
     int processID;
     int arrivalTime;
     int CPUburstTime;
+    int IOtime;
     int IOburstTime;
     int priority;
     int remainingTime;
@@ -38,7 +39,8 @@ void createProcesses(Process p[], int n) {
         p[i].processID = i+1;
         p[i].arrivalTime = rand() % 10;
         p[i].CPUburstTime = rand() % 10 + 5;
-        p[i].IOburstTime = rand() % 10 + 1;
+        p[i].IOtime = p[i].CPUburstTime / 2;
+        p[i].IOburstTime = rand() % 10;
         p[i].priority = rand() % n + 1;
         p[i].returnTime = 0;
         p[i].waitingTime = 0;
@@ -62,13 +64,14 @@ typedef struct {
     int rear;
 } ProcessQueue;
 
-void pushQueue(ProcessQueue *q, Process* p, int arrivalTime){
+void enqueue(ProcessQueue *q, Process* p, int arrivalTime){
     q->p[q->rear] = p;
     q->arrivalTime[q->rear] = arrivalTime;
     q->rear = (q->rear + 1) % NUM_PROCESS;
 }
 
-Process* popQueue(ProcessQueue *q) {
+Process* dequeue(ProcessQueue *q) {
+    if(q->front == q->rear) return NULL; // if queue is empty, return NULL.
     Process* p = q->p[q->front];
     q->front = (q->front + 1) % NUM_PROCESS;
     return p;
