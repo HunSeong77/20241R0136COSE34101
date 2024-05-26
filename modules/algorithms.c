@@ -4,14 +4,14 @@
 // First Come First Served
 void schedule_FCFS(Process p[], int n, Gantt *gantt) {
     ProcessQueue readyQueue;
-    ProcessQueue waitingQueue;
     int currentTime = 0;
     Process* currentProcess = NULL;
-    Process* IOProcess = NULL;
+    int arrived = 0;
     while(true){
-        for(int i = 0; i < n; ++i){
+        for(int i = arrived; i < n; i++){
             if(p[i].arrivalTime == currentTime){
                 enqueue(&readyQueue, &p[i]);
+                arrived++;
             }
         }
         if(currentProcess == NULL){
@@ -29,8 +29,7 @@ void schedule_FCFS(Process p[], int n, Gantt *gantt) {
                 currentProcess = dequeue(&readyQueue);
             }
         }
-
-
+        if(currentProcess == NULL && readyQueue.front == readyQueue.rear && arrived == n) break;
         currentTime++;
     }
 }

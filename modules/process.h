@@ -36,7 +36,7 @@ void printProcesses(Process p[], int n) {
 
 void createProcesses(Process p[], int n) {
     for (int i = 0; i < n; i++) {
-        p[i].processID = i+1;
+        // p[i].processID = i+1;
         p[i].arrivalTime = rand() % 10;
         p[i].CPUburstTime = rand() % 10 + 5;
         p[i].IOtime = p[i].CPUburstTime / 2;
@@ -45,6 +45,19 @@ void createProcesses(Process p[], int n) {
         p[i].returnTime = 0;
         p[i].waitingTime = 0;
         p[i].turnaroundTime = 0;
+    }
+    // sort by arrival time
+    for (int i = 0; i < n; i++) {
+        for (int j = i; j < n; j++) {
+            if (p[i].arrivalTime > p[j].arrivalTime) {
+                Process temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+    for(int i = 0; i < n; i++){
+        p[i].processID = i+1;
     }
 }
 
@@ -102,6 +115,7 @@ void pushPriorityQueue(ProcessQueue *q, Process* p, int arrivalTime, int priorit
 }
 
 Process* popPriorityQueue(ProcessQueue *q, int priority){
+    if(q->rear == 0) return NULL; // if queue is empty, return NULL.
     Process* ret = q->p[0];
     q->p[0] = q->p[q->rear - 1];
     q->arrivalTime[0] = q->arrivalTime[q->rear - 1];
