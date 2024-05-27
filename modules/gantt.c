@@ -14,13 +14,13 @@ void printGantt(Gantt* gantt, int algorithm){
     switch(algorithm){
         case FCFS:
             printf(" FCFS :                    "); break;
-        case NON_PREEMPTIVE_SJF:
+        case NPSJF:
             printf(" Non-Preemptive SJF :      "); break;
-        case PREEMPTIVE_SJF:
+        case SJF:
             printf(" Preemptive SJF :          "); break;
-        case NON_PREEMPTIVE_PRIORITY:
+        case NPPRIORITY:
             printf(" Non-Preemptive Priority : "); break;
-        case PREEMPTIVE_PRIORITY:
+        case PRIORITY:
             printf(" Preemptive Priority :     "); break;
         case ROUND_ROBIN:
             printf(" Round Robin :             "); break;

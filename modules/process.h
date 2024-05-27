@@ -2,8 +2,8 @@
 #define PROCESS_H
 
 #define NUM_PROCESS 5
-#define REMAINING 0
-#define PRIORITY 1
+#define _REMAINING 0
+#define _PRIORITY 1
 
 typedef struct Process{
     int processID;
@@ -34,5 +34,6 @@ void enqueue(ProcessQueue *q, Process* p, int arrivalTime);
 Process* dequeue(ProcessQueue *q);
 void pushPriorityQueue(ProcessQueue *q, Process* p, int arrivalTime, int mode);
 Process* popPriorityQueue(ProcessQueue *q, int mode);
+Process* peekPriorityQueue(ProcessQueue *q, int mode);
 
 #endif

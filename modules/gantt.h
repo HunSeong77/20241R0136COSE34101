@@ -6,10 +6,10 @@
 #include "./process.h"
 
 #define FCFS 0
-#define NON_PREEMPTIVE_SJF 1
-#define PREEMPTIVE_SJF 2
-#define NON_PREEMPTIVE_PRIORITY 3
-#define PREEMPTIVE_PRIORITY 4
+#define NPSJF 1
+#define SJF 2
+#define NPPRIORITY 3
+#define PRIORITY 4
 #define ROUND_ROBIN 5
 
 #define SIZE 20

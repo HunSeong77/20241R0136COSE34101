@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "process.h"
 
 
@@ -21,6 +22,8 @@ void printProcesses(Process p[], int n) {
 }
 
 void createProcesses(Process p[], int n) {
+    // set seed
+    srand(222);
     for (int i = 0; i < n; i++) {
         // p[i].processID = i+1;
         p[i].arrivalTime = rand() % 10;
@@ -42,6 +45,7 @@ void createProcesses(Process p[], int n) {
             }
         }
     }
+    p[0].arrivalTime = 0;
     for(int i = 0; i < n; i++){
         p[i].processID = i+1;
     }
@@ -74,61 +78,55 @@ Process* dequeue(ProcessQueue *q) {
     return p;
 }
 
+void heapify(ProcessQueue* queue, int i, int mode){
+    if (queue->rear == 0) return;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    int target = i;
+    if (left < queue->rear && (mode == _REMAINING ? queue->p[left]->remainingTime < queue->p[target]->remainingTime : queue->p[left]->priority < queue->p[target]->priority)) {
+        target = left;
+    }
+    if (right < queue->rear && (mode == _REMAINING ? queue->p[right]->remainingTime < queue->p[target]->remainingTime : queue->p[right]->priority < queue->p[target]->priority)) {
+        target = right;
+    }
+    if (target != i) {
+        Process* temp = queue->p[i];
+        queue->p[i] = queue->p[target];
+        queue->p[target] = temp;
+        int tempTime = queue->arrivalTime[i];
+        queue->arrivalTime[i] = queue->arrivalTime[target];
+        queue->arrivalTime[target] = tempTime;
+        heapify(queue, target, mode);
+    }
+}
+
 void pushPriorityQueue(ProcessQueue *q, Process* p, int arrivalTime, int mode) {
     int size = q->rear;
-    int curr = q->rear;
-    int parent = (curr - 1) / 2;
-    q->p[curr] = p;
-    q->arrivalTime[curr] = arrivalTime;
-    q->rear++;
-    // while (curr > 0 && q->p[parent]->priority > q->p[curr]->priority) {
-    while (curr > 0) {
-        if(mode == REMAINING && q->p[parent]->remainingTime <= q->p[curr]->remainingTime) 
-            break; // if remaining time is smaller or equal, break.
-        if(mode == PRIORITY && q->p[parent]->priority <= q->p[curr]->priority) 
-            break; // if priority is smaller or equal, break.
-        Process* temp = q->p[parent];
-        q->p[parent] = q->p[curr];
-        q->p[curr] = temp;
-        int tempTime = q->arrivalTime[parent];
-        q->arrivalTime[parent] = q->arrivalTime[curr];
-        q->arrivalTime[curr] = tempTime;
-        curr = parent;
-        parent = (curr - 1) / 2;
+    if(size == 0){
+        q->p[0] = p;
+        q->arrivalTime[0] = arrivalTime;
+        q->rear++;
+        return;
     }
+    q->p[size] = p;
+    q->arrivalTime[size] = arrivalTime;
+    q->rear++;
+    for(int i = (q->rear)/2-1 ; i >= 0; i--)
+        heapify(q, i, mode);
 }
 
 Process* popPriorityQueue(ProcessQueue *q, int mode){
     if(q->rear == 0) return NULL; // if queue is empty, return NULL.
     Process* ret = q->p[0];
-    q->p[0] = q->p[q->rear - 1];
-    q->arrivalTime[0] = q->arrivalTime[q->rear - 1];
     q->rear--;
-    int curr = 0;
-    int left = 2 * curr + 1;
-    int right = 2 * curr + 2;
-    int child = (left < q->rear && right < q->rear) ? (mode == REMAINING ? 
-        (q->p[left]->remainingTime < q->p[right]->remainingTime ? left : right) : 
-        (q->p[left]->priority < q->p[right]->priority ? left : right)) : 
-        (left < q->rear ? left : right);
-    while (child < q->rear) {
-        if(mode == REMAINING && q->p[curr]->remainingTime <= q->p[child]->remainingTime) 
-            break; // if remaining time is smaller or equal, break.
-        if(mode == PRIORITY && q->p[curr]->priority <= q->p[child]->priority) 
-            break; // if priority is smaller or equal, break.
-        Process* temp = q->p[curr];
-        q->p[curr] = q->p[child];
-        q->p[child] = temp;
-        int tempTime = q->arrivalTime[curr];
-        q->arrivalTime[curr] = q->arrivalTime[child];
-        q->arrivalTime[child] = tempTime;
-        curr = child;
-        left = 2 * curr + 1;
-        right = 2 * curr + 2;
-        child = (left < q->rear && right < q->rear) ? (mode == REMAINING ? 
-            (q->p[left]->remainingTime < q->p[right]->remainingTime ? left : right) : 
-            (q->p[left]->priority < q->p[right]->priority ? left : right)) : 
-            (left < q->rear ? left : right);
-    }
+    q->p[0] = q->p[q->rear];
+    q->arrivalTime[0] = q->arrivalTime[q->rear];
+    for(int i = (q->rear)/2-1 ; i >= 0; i--)
+        heapify(q, i, mode);
     return ret;
+}
+
+Process* peekPriorityQueue(ProcessQueue *q, int mode){
+    if(q->rear == 0) return NULL; // if queue is empty, return NULL.
+    return q->p[0];
 }
