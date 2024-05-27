@@ -1,0 +1,22 @@
+gcc -o run main.c modules/process.c modules/gantt.c modules/algorithms.c
+./run
+Process name	| Arrival Time	| CPU Burst Time	| IO Burst Time	| Priority
+--------------------------------------------------------------------------------------------
+P1		| 0		| 14			| 3		| 2
+P2		| 0		| 11			| 2		| 2
+P3		| 3		| 11			| 7		| 1
+P4		| 3		| 10			| 6		| 3
+P5		| 9		| 6			| 2		| 3
+P1 is done at 14
+P2 is done at 25
+P3 is done at 36
+P4 is done at 46
+P5 is done at 52
+                           -----------------------------------------------------
+ FCFS :                    |     P1      |    P2    |    P3    |   P4    | P5  |
+                           0-------------14----------25----------36---------46-----52
+P1: 14
+P2: 25
+P3: 36
+P4: 46
+P5: 52

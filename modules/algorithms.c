@@ -1,16 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "algorithms.h"
 
 // First Come First Served
 void schedule_FCFS(Process p[], int n, Gantt *gantt) {
     ProcessQueue readyQueue;
+    initializeQueue(&readyQueue);
     int currentTime = 0;
     Process* currentProcess = NULL;
     int arrived = 0;
-    while(true){
+    while(1){
         for(int i = arrived; i < n; i++){
             if(p[i].arrivalTime == currentTime){
-                enqueue(&readyQueue, &p[i]);
+                enqueue(&readyQueue, &p[i], currentTime);
                 arrived++;
             }
         }
@@ -20,6 +20,7 @@ void schedule_FCFS(Process p[], int n, Gantt *gantt) {
         if(currentProcess != NULL){
             currentProcess -> remainingTime--;
             if(currentProcess -> remainingTime == 0){
+                printf("P%d is done at %d\n", currentProcess -> processID, currentTime + 1);
                 currentProcess -> returnTime = currentTime + 1;
                 currentProcess -> turnaroundTime = currentProcess -> returnTime - currentProcess -> arrivalTime;
                 currentProcess -> waitingTime =  currentProcess -> turnaroundTime - currentProcess -> CPUburstTime;

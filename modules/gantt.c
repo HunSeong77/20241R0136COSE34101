@@ -1,27 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "./process.h"
+#include "gantt.h"
 
-#define FCFS 0
-#define NON_PREEMPTIVE_SJF 1
-#define PREEMPTIVE_SJF 2
-#define NON_PREEMPTIVE_PRIORITY 3
-#define PREEMPTIVE_PRIORITY 4
-#define ROUND_ROBIN 5
-
-#define SIZE 20
-
-typedef struct{
-    Process* p[SIZE];
-    int endStamp[SIZE];
-    int size;
-} Gantt;
+void initializeGantt(Gantt* gantt){
+    gantt -> size = 0;
+}
 
 void printGantt(Gantt* gantt, int algorithm){
     printf("                           ");
-    for(int i = 0; i < gantt->endStamp[gantt->size-1]; i++){
+    for(int i = 0; i <= gantt->endStamp[gantt->size-1]; i++){
         printf("-");
     }
+    printf("\n");
 
     switch(algorithm){
         case FCFS:
@@ -41,8 +29,8 @@ void printGantt(Gantt* gantt, int algorithm){
     printf("|");
     for(int i = 0; i < gantt->size; i++){
         int len = i == 0 ? gantt->endStamp[i] : gantt->endStamp[i] - gantt->endStamp[i-1];
-        int pre_blank = (len - 4) / 2;
-        int post_blank = len - 4 - pre_blank;
+        int pre_blank = (len - 3) / 2;
+        int post_blank = len - 3 - pre_blank;
         for(int j = 0; j < pre_blank; j++){
             printf(" ");
         }
@@ -52,9 +40,18 @@ void printGantt(Gantt* gantt, int algorithm){
         }
         printf("|");
     }
+    printf("\n");
 
     printf("                           ");
-    for(int i = 0; i < gantt->endStamp[gantt->size-1]; i++){
-        printf("-");
+    int j = 0;
+    printf("0");
+    for(int i = 1; i <= gantt->endStamp[gantt->size-1]; i++){
+        if(j <= gantt->size && i == gantt->endStamp[j]){
+            j++;
+            printf("\b%2d", i);
+        }else{
+            printf("-");
+        }
     }
+    printf("\n");
 }
