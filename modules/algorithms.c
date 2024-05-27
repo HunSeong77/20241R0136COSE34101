@@ -108,3 +108,77 @@ void schedule_SJF(Process p[], int n, Gantt *gantt){
         currentTime++;
     }
 }
+
+void schedule_NPPRIORITY(Process p[], int n, Gantt *gantt){
+    ProcessQueue readyQueue;
+    initializeQueue(&readyQueue);
+    int currentTime = 0;
+    Process* currentProcess = NULL;
+    int arrived = 0;
+    while(1){
+        for(int i = 0; i < n; i++){
+            if(p[i].arrivalTime == currentTime){
+                pushPriorityQueue(&readyQueue, &p[i], currentTime, _PRIORITY);
+                arrived++;
+            }
+        }
+        if(currentProcess == NULL){
+            currentProcess = popPriorityQueue(&readyQueue, _PRIORITY);
+        }
+        if(currentProcess != NULL){
+            currentProcess -> remainingTime--;
+            if(currentProcess -> remainingTime == 0){
+                currentProcess -> returnTime = currentTime + 1;
+                currentProcess -> turnaroundTime = currentProcess -> returnTime - currentProcess -> arrivalTime;
+                currentProcess -> waitingTime =  currentProcess -> turnaroundTime - currentProcess -> CPUburstTime;
+                gantt -> p[gantt -> size] = currentProcess;
+                gantt -> endStamp[gantt -> size] = currentTime + 1;
+                gantt -> size++;
+                currentProcess = popPriorityQueue(&readyQueue, _PRIORITY);
+            }
+        }
+        if(currentProcess == NULL && readyQueue.front == readyQueue.rear && arrived == n) break;
+        currentTime++;
+    }
+}
+
+void schedule_PRIORITY(Process p[], int n, Gantt *gantt){
+    ProcessQueue readyQueue;
+    initializeQueue(&readyQueue);
+    int currentTime = 0;
+    Process* currentProcess = NULL;
+    int arrived = 0;
+    while(1){
+        for(int i = 0; i < n; i++){
+            if(p[i].arrivalTime == currentTime){
+                pushPriorityQueue(&readyQueue, &p[i], currentTime, _PRIORITY);
+                arrived++;
+            }
+        }
+        if(currentProcess == NULL){
+            currentProcess = popPriorityQueue(&readyQueue, _PRIORITY);
+        }
+        if(currentProcess != NULL){
+            currentProcess -> remainingTime--;
+            Process *nextProcess = peekPriorityQueue(&readyQueue, _PRIORITY);
+            if(nextProcess != NULL && nextProcess -> priority < currentProcess -> priority){
+                gantt -> p[gantt -> size] = currentProcess;
+                gantt -> endStamp[gantt -> size] = currentTime + 1;
+                gantt -> size++;
+                pushPriorityQueue(&readyQueue, currentProcess, currentTime, _PRIORITY);
+                currentProcess = popPriorityQueue(&readyQueue, _PRIORITY);
+            }
+            if(currentProcess -> remainingTime == 0){
+                currentProcess -> returnTime = currentTime + 1;
+                currentProcess -> turnaroundTime = currentProcess -> returnTime - currentProcess -> arrivalTime;
+                currentProcess -> waitingTime =  currentProcess -> turnaroundTime - currentProcess -> CPUburstTime;
+                gantt -> p[gantt -> size] = currentProcess;
+                gantt -> endStamp[gantt -> size] = currentTime + 1;
+                gantt -> size++;
+                currentProcess = popPriorityQueue(&readyQueue, _PRIORITY);
+            }
+        }
+        if(currentProcess == NULL && readyQueue.front == readyQueue.rear && arrived == n) break;
+        currentTime++;
+    }
+}
