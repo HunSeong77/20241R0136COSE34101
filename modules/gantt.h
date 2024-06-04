@@ -10,9 +10,9 @@
 #define SJF 2
 #define NPPRIORITY 3
 #define PRIORITY 4
-#define ROUND_ROBIN 5
+#define RR 5
 
-#define SIZE 20
+#define SIZE 30
 
 typedef struct Gantt{
     Process* p[SIZE];

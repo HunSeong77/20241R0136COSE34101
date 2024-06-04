@@ -23,11 +23,11 @@ void printProcesses(Process p[], int n) {
 
 void createProcesses(Process p[], int n) {
     // set seed
-    srand(222);
+    srand(getpid());
     for (int i = 0; i < n; i++) {
         // p[i].processID = i+1;
         p[i].arrivalTime = rand() % 10;
-        p[i].CPUburstTime = rand() % 10 + 5;
+        p[i].CPUburstTime = rand() % 10 + 3;
         p[i].IOtime = p[i].CPUburstTime / 2;
         p[i].IOburstTime = rand() % 10;
         p[i].priority = rand() % n + 1;
@@ -45,7 +45,6 @@ void createProcesses(Process p[], int n) {
             }
         }
     }
-    p[0].arrivalTime = 0;
     for(int i = 0; i < n; i++){
         p[i].processID = i+1;
     }
@@ -57,6 +56,25 @@ void initializeProcesses(Process p[], int n) {
         p[i].returnTime = 0;
         p[i].waitingTime = 0;
         p[i].turnaroundTime = 0;
+    }
+}
+
+void copyProcess(Process* dest, Process* src){
+    dest->processID = src->processID;
+    dest->arrivalTime = src->arrivalTime;
+    dest->CPUburstTime = src->CPUburstTime;
+    dest->IOtime = src->IOtime;
+    dest->IOburstTime = src->IOburstTime;
+    dest->priority = src->priority;
+    dest->remainingTime = src->remainingTime;
+    dest->returnTime = src->returnTime;
+    dest->waitingTime = src->waitingTime;
+    dest->turnaroundTime = src->turnaroundTime;
+}
+
+void copyProcesses(Process dest[], Process src[], int n){
+    for(int i = 0; i < n; ++i){
+        copyProcess(&dest[i], &src[i]);
     }
 }
 
@@ -78,15 +96,34 @@ Process* dequeue(ProcessQueue *q) {
     return p;
 }
 
+Process* peek(ProcessQueue *q){
+    if(q->front == q->rear) return NULL; // if queue is empty, return NULL.
+    return q->p[q->front];
+}
+
+int compare(Process* a, Process* b, int mode){
+    if(mode == _REMAINING){
+        if(a->remainingTime == b->remainingTime)
+            return a->arrivalTime < b->arrivalTime;
+        return a->remainingTime < b->remainingTime;
+    }
+    else if(mode == _PRIORITY){
+        if(a->priority == b->priority)
+            return a->arrivalTime < b->arrivalTime;
+        return a->priority < b->priority;
+    }
+    return 0;
+}
+
 void heapify(ProcessQueue* queue, int i, int mode){
     if (queue->rear == 0) return;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
     int target = i;
-    if (left < queue->rear && (mode == _REMAINING ? queue->p[left]->remainingTime < queue->p[target]->remainingTime : queue->p[left]->priority < queue->p[target]->priority)) {
+    if (left < queue->rear && (compare(queue->p[left], queue->p[target], mode))) {
         target = left;
     }
-    if (right < queue->rear && (mode == _REMAINING ? queue->p[right]->remainingTime < queue->p[target]->remainingTime : queue->p[right]->priority < queue->p[target]->priority)) {
+    if (right < queue->rear && (compare(queue->p[right], queue->p[target], mode))) {
         target = right;
     }
     if (target != i) {

@@ -1,15 +1,27 @@
 #include "gantt.h"
 
+int quantum = 4;
+
 void initializeGantt(Gantt* gantt){
     gantt -> size = 0;
 }
 
 void printGantt(Gantt* gantt, int algorithm){
-    printf("                           ");
-    for(int i = 0; i <= gantt->endStamp[gantt->size-1]; i++){
-        printf("-");
+    int num_blanks[SIZE];
+    for(int i = 0; i < gantt->size; i++){
+        int len = gantt->endStamp[i] - (i == 0 ? 0 : gantt->endStamp[i-1]);
+        num_blanks[i] = len == 0 ? -1 : (len < 3 ? 0 : (len < 10 ? (len - 3) / 2 : 3));
     }
-    printf("\n");
+    printf("                           ");
+    for(int i = 0; i < gantt->size; i++){
+        if(num_blanks[i] >= 0){
+            for(int j = 0; j < num_blanks[i]; j++){
+                printf("__");
+            }
+            printf("___");
+        }
+    }
+    printf("_\n");
 
     switch(algorithm){
         case FCFS:
@@ -22,36 +34,42 @@ void printGantt(Gantt* gantt, int algorithm){
             printf(" Non-Preemptive Priority : "); break;
         case PRIORITY:
             printf(" Preemptive Priority :     "); break;
-        case ROUND_ROBIN:
-            printf(" Round Robin :             "); break;
+        case RR:
+            printf(" Round Robin (%d):          ", quantum); break;
     }
 
     printf("|");
     for(int i = 0; i < gantt->size; i++){
-        int len = i == 0 ? gantt->endStamp[i] : gantt->endStamp[i] - gantt->endStamp[i-1];
-        int pre_blank = (len - 3) / 2;
-        int post_blank = len - 3 - pre_blank;
-        for(int j = 0; j < pre_blank; j++){
+        if(num_blanks[i] < 0) continue;
+        for(int j = 0; j < num_blanks[i]; j++)
             printf(" ");
-        }
-        printf("P%d", gantt->p[i]->processID);
-        for(int j = 0; j < post_blank; j++){
+
+        if(gantt->p[i] != NULL)
+            printf("P%d", gantt->p[i]->processID);
+        else
+            printf("--");
+        
+        for(int j = 0; j < num_blanks[i]; j++)
             printf(" ");
-        }
+        
         printf("|");
     }
     printf("\n");
 
     printf("                           ");
     int j = 0;
-    printf("0");
-    for(int i = 1; i <= gantt->endStamp[gantt->size-1]; i++){
-        if(j <= gantt->size && i == gantt->endStamp[j]){
-            j++;
-            printf("\b%2d", i);
-        }else{
-            printf("-");
-        }
+    printf("0-");
+    for(int i = 0; i < gantt->size; i++){
+        if(num_blanks[i] < 0) continue;
+        for(int j = 0; j < num_blanks[i]; j++)
+            printf("--");
+        int time = gantt->endStamp[i];
+        if(time < 10)
+            printf("-%d-", time);
+        else if (time < 100)
+            printf("-%d", time);
+        else
+            printf("%d", time);
     }
     printf("\n");
 }
